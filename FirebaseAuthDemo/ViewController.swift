@@ -24,7 +24,7 @@ class ViewController: UIViewController {
     // MARK: - Properties
     
     var timer: Timer!
-    var limitTime = 10
+    var limitTime = 120
     
     // MARK: - Lifecycle
     
@@ -34,6 +34,14 @@ class ViewController: UIViewController {
     }
     
     // MARK: - Helper
+    
+    func startTimer() {
+        timerLabel.isHidden = false
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: { _ in
+            self.limitTime -= 1
+            self.updateTimerLabel()
+        })
+    }
     
     func updateTimerLabel() {
         let minutes = self.limitTime / 60
@@ -47,17 +55,16 @@ class ViewController: UIViewController {
         }
     }
     
-    // MARK: - Action
-    
-    @IBAction func startTimer(_ sender: UIButton) {
-        timerLabel.isHidden = false
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: { _ in
-            self.limitTime -= 1
-            self.updateTimerLabel()
-        })
+    func stopTimer() {
+        self.timerLabel.isHidden = true
+        self.timer.invalidate()
     }
     
+    // MARK: - Action
+    
     @IBAction func handleSendButton(_ sender: UIButton) {
+        self.startTimer()
+        
         let phoneNumber = phoneNumberTextField.text ?? ""
         
         PhoneAuthProvider.provider()
@@ -82,14 +89,12 @@ class ViewController: UIViewController {
         
         Auth.auth().signIn(with: credential) { success, error in
             if error == nil {
-                print(success ?? "")
-                print("사용자 로그인!")
+                print("사용자 로그인!", success ?? "")
+                self.stopTimer()
             } else {
                 print("Login failed: \(error.debugDescription)")
             }
         }
     }
-    
-    
 }
 
