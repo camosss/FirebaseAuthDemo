@@ -9,23 +9,54 @@ import UIKit
 import FirebaseAuth
 
 // TODO
-// 번호인증 만료 타이머
 // 버튼 유효성 검사 (rx 적용)
 
 class ViewController: UIViewController {
 
-    @IBOutlet weak var timerLabel: UILabel!
+    // MARK: - IBOutlet
     
+    @IBOutlet weak var timerLabel: UILabel!
     @IBOutlet weak var doneButton: UIButton!
     @IBOutlet weak var sendButton: UIButton!
     @IBOutlet weak var phoneNumberTextField: UITextField!
     @IBOutlet weak var varificationCodeTextField: UITextField!
     
+    // MARK: - Properties
+    
+    var timer: Timer!
+    var limitTime = 10
+    
+    // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        self.timerLabel.isHidden = true
     }
-
+    
+    // MARK: - Helper
+    
+    func updateTimerLabel() {
+        let minutes = self.limitTime / 60
+        let seconds = self.limitTime % 60
+        
+        if self.limitTime > 0 {
+            self.timerLabel.text = String(format: "%02d:%02d", minutes, seconds)
+        } else {
+            self.timerLabel.isHidden = true
+            self.timer.invalidate()
+        }
+    }
+    
+    // MARK: - Action
+    
+    @IBAction func startTimer(_ sender: UIButton) {
+        timerLabel.isHidden = false
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true, block: { _ in
+            self.limitTime -= 1
+            self.updateTimerLabel()
+        })
+    }
+    
     @IBAction func handleSendButton(_ sender: UIButton) {
         let phoneNumber = phoneNumberTextField.text ?? ""
         
